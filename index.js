@@ -34,14 +34,63 @@ function viewAllEmployees() {
 
 // Function to add a department
 function addDepartment() {
-    
+    inquirer
+        .prompt({
+            name: 'departmentName',
+            type: 'input',
+            message: 'What is the name of the department you would like to add?'
+        })
+        .then(function (answer) {
+            db.query(
+                'INSERT INTO department SET ?', 
+                { 
+                    name: answer.departmentName 
+                },
+                function (err, results) {
+                    console.log(results);
+                }
+            );
+        });
 };
 
 // Function to add a role
-function addRole() {};
+function addRole() {
+    .prompt([
+        {
+            name: 'title',
+            type: 'input',
+            message: 'Enter the title of the new role:',
+        },
+        {
+            name: 'salary',
+            type: 'input',
+            message: 'Enter the salary for the new role:',
+        },
+        {
+            name: 'departmentId',
+            type: input,
+            message: 'Enter the department ID for the new role:',
+        }
+    ])
+    .then(function (answer) {
+        db.query(
+            'INSERT INTO role SET ?',
+            {
+                title: answer.title,
+                salary: answer.salary,
+                department_id: answer.departmentId
+            },
+            function (err, results) {
+                console.log(results);
+            }
+        );
+    });
+};
 
 // Function to add an employee
-function addEmployee() {};
+function addEmployee() {
+    
+};
 
 // Function to update an employee role
 function updateEmployeeRole() {};
