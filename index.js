@@ -68,7 +68,7 @@ function addRole() {
         },
         {
             name: 'departmentId',
-            type: input,
+            type: 'input',
             message: 'Enter the department ID for the new role:',
         }
     ])
@@ -89,10 +89,71 @@ function addRole() {
 
 // Function to add an employee
 function addEmployee() {
-    
+    inquirer
+        .prompt([
+            {
+                name: 'firstName',
+                type: 'input',
+                message: 'Enter the first name of the new employee:',
+            },
+            {
+                name: 'lastName',
+                type: 'input',
+                message: 'Enter the last name of the new employee:',
+            },
+            {
+                name: 'roleId',
+                type: 'input',
+                message: 'Enter the role ID for the new employee:',
+            },
+            {
+                name: 'managerId',
+                type: 'input',
+                message: 'Enter the manager ID for the new employee:',
+            }
+        ])
+        .then(function (answer) {
+            db.query(
+                'INSERT INTO employee SET ?',
+                {
+                    first_name: answer.firstName,
+                    last_name: answer.lastName, 
+                    role_id: answer.roleId,
+                    manager_id: answer.managerId
+                },
+                function (err, results) {
+                    console.log(results);
+                }
+            );
+        });
 };
 
 // Function to update an employee role
-function updateEmployeeRole() {};
+function updateEmployeeRole() {
+    inquirer
+        .prompt([
+            {
+                name: 'employeeId',
+                type: 'input',
+                message: 'Enter the ID of the employee you would like to update:',
+            },
+            {
+                name: 'roleId',
+                type: 'input',
+                message: 'Enter the new role ID for the employee:',
+            }
+        ])
+        .then(function (answer) {
+            db.query(
+                'UPDATE employee SET role_id = ? WHERE id = ?',
+                [
+                    answer.roleId, answer.employeeId
+                ],
+                function (err, results) {
+                    console.log(results);
+                }
+            );
+        });
+};
 
 // Quit the application
