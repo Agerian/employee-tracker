@@ -12,9 +12,10 @@ const db = mysql.createConnection({
 console.log(`Connected to the ${process.env.DB_NAME} database.`));
 
 // Function to view all departments
-function viewAllRoles() {
+function viewAllDepartments() {
     db.query('SELECT * FROM department', function (err, results) {
         console.log(results);
+        menu();
     });
 };
 
@@ -22,6 +23,7 @@ function viewAllRoles() {
 function viewAllRoles() {
     db.query('SELECT * FROM role', function (err, results) {
         console.log(results);
+        menu();
     });
 };
 
@@ -29,6 +31,7 @@ function viewAllRoles() {
 function viewAllEmployees() {
     db.query('SELECT * FROM employee', function (err, results) {
         console.log(results);
+        menu();
     });
 };
 
@@ -48,6 +51,7 @@ function addDepartment() {
                 },
                 function (err, results) {
                     console.log(results);
+                    menu();
                 }
             );
         });
@@ -55,36 +59,38 @@ function addDepartment() {
 
 // Function to add a role
 function addRole() {
-    .prompt([
-        {
-            name: 'title',
-            type: 'input',
-            message: 'Enter the title of the new role:',
-        },
-        {
-            name: 'salary',
-            type: 'input',
-            message: 'Enter the salary for the new role:',
-        },
-        {
-            name: 'departmentId',
-            type: 'input',
-            message: 'Enter the department ID for the new role:',
-        }
-    ])
-    .then(function (answer) {
-        db.query(
-            'INSERT INTO role SET ?',
+    inquirer
+        .prompt([
             {
-                title: answer.title,
-                salary: answer.salary,
-                department_id: answer.departmentId
+                name: 'title',
+                type: 'input',
+                message: 'Enter the title of the new role:',
             },
-            function (err, results) {
-                console.log(results);
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'Enter the salary for the new role:',
+            },
+            {
+                name: 'departmentId',
+                type: 'input',
+                message: 'Enter the department ID for the new role:',
             }
-        );
-    });
+        ])
+        .then(function (answer) {
+            db.query(
+                'INSERT INTO role SET ?',
+                {
+                    title: answer.title,
+                    salary: answer.salary,
+                    department_id: answer.departmentId
+                },
+                function (err, results) {
+                    console.log(results);
+                    menu();
+                }
+            );
+        });
 };
 
 // Function to add an employee
@@ -123,6 +129,7 @@ function addEmployee() {
                 },
                 function (err, results) {
                     console.log(results);
+                    menu();
                 }
             );
         });
@@ -151,6 +158,7 @@ function updateEmployeeRole() {
                 ],
                 function (err, results) {
                     console.log(results);
+                    menu();
                 }
             );
         });
@@ -174,6 +182,7 @@ function viewEmployeesByManager() {
                 ],
                 function (err, results) {
                     console.log(results);
+                    menu();
                 }
             );
         });
@@ -197,6 +206,7 @@ function viewEmployeesByDepartment() {
                 ],
                 function (err, results) {
                     console.log(results);
+                    menu();
                 }
             );
         });
@@ -220,6 +230,7 @@ function deleteDepartment() {
                 ],
                 function (err, results) {
                     console.log(results);
+                    menu();
                 }
             );
         });
@@ -243,6 +254,7 @@ function deleteRole() {
                 ],
                 function (err, results) {
                     console.log(results);
+                    menu();
                 }
             );
         });
@@ -266,6 +278,7 @@ function deleteEmployee() {
                 ],
                 function (err, results) {
                     console.log(results);
+                    menu();
                 }
             );
         });
@@ -289,8 +302,83 @@ function viewDepartmentBudget() {
                 ] ,
                 function (err, results) {
                     console.log(results);
+                    menu();
                 }
             );
         });
 };
 
+// Menu function
+function menu() {
+    inquirer
+        .prompt({
+                name: 'menu',
+                type: 'list',
+                message: 'What would you like to do?',
+                choices: [
+                    'View all departments',
+                    'View all roles',
+                    'View all employees',
+                    'Add a department',
+                    'Add a role',
+                    'Add an employee',
+                    'Update an employee role',
+                    'View employees by manager',
+                    'View employees by department',
+                    'Delete a department',
+                    'Delete a role',
+                    'Delete an employee',
+                    'View the total utilized budget of a department',
+                    'Exit'
+                ]
+            })
+        .then(function (answer) {
+            switch (answer.menu) {
+                case 'View all departments':
+                    viewAllDepartments();
+                    break;
+                case 'View all roles':
+                    viewAllRoles();
+                    break;
+                case 'View all employees':
+                    viewAllEmployees();
+                    break;
+                case 'Add a department':
+                    addDepartment();
+                    break;
+                case 'Add a role':
+                    addRole();
+                    break;
+                case 'Add an employee':
+                    addEmployee();
+                    break;
+                case 'Update an employee role':
+                    updateEmployeeRole();
+                    break;
+                case 'View employees by manager':
+                    viewEmployeesByManager();
+                    break;
+                case 'View employees by department':
+                    viewEmployeesByDepartment();
+                    break;
+                case 'Delete a department':
+                    deleteDepartment();
+                    break;
+                case 'Delete a role':
+                    deleteRole();
+                    break;
+                case 'Delete an employee':
+                    deleteEmployee();
+                    break;
+                case 'View the total utilized budget of a department':
+                    viewDepartmentBudget();
+                    break;
+                case 'Exit':
+                    console.log('Goodbye!');
+                    db.end();
+                    break;
+            }
+        });
+};
+
+menu();
