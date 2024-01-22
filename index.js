@@ -140,31 +140,63 @@ function addEmployee() {
 
 // Function to update an employee role
 function updateEmployeeRole() {
-    inquirer
-        .prompt([
-            {
-                name: 'employeeId',
-                type: 'input',
-                message: 'Enter the ID of the employee you would like to update:',
-            },
-            {
-                name: 'roleId',
-                type: 'input',
-                message: 'Enter the new role ID for the employee:',
+    // Fetch all employees ordered by ID
+    db.query('SELECT * FROM employee ORDER BY id', function (err, employees) {
+        if (err) {
+            console.error(err);
+            menu();
+            return;
+        }
+
+        // Fetch all available role ID's
+        db.query('SELECT id, title FROM role ORDER BY id', function (err, roles) {
+            if (err) {
+                console.error(err);
+                menu();
+                return;
             }
-        ])
-        .then(function (answer) {
-            db.query(
-                'UPDATE employee SET role_id = ? WHERE id = ?',
-                [
-                    answer.roleId, answer.employeeId
-                ],
-                function (err, results) {
-                    console.log(results);
-                    menu();
+
+            // Prompt user to select an employee and enter a new role ID
+            inquirer
+            .prompt([
+                {
+                    name: 'employeeId',
+                    type: 'list',
+                    message: 'Select the employee you would like to update:',
+                    choices: employees.map(employee => ({
+                        name: `${employee.first_name} ${employee.last_name}`,
+                        value: employee.id
+                    }))
+                },
+                {
+                    name: 'roleId',
+                    type: 'list',
+                    message: 'Select the new role ID for the employee:',
+                    choices: roles.map(role => ({
+                        name: `${role.id}: ${role.title}`,
+                        value: role.id
+                    }))
                 }
-            );
-        });
+            ])
+            .then(function (answer) {
+                // Perform the update
+                db.query(
+                    'UPDATE employee SET role_id = ? WHERE id = ?',
+                    [
+                        answer.roleId, answer.employeeId
+                    ],
+                    function (err, results) {
+                        if(err) {
+                            console.log(results);
+                        } else {
+                            console.log('Employee role updated.');
+                        }
+                        menu();
+                    }
+                );
+            });
+        })
+    });
 };
 
 // Function to view employees by manager
