@@ -8,8 +8,11 @@ const db = mysql.createConnection({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
-},
-console.log(`Connected to the ${process.env.DB_NAME} database.`));
+  });
+
+// Log connection confirmation
+console.log(`Connected to the ${process.env.DB_NAME} database.`);
+
 
 // Function to view all departments
 function viewAllDepartments() {
