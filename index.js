@@ -156,4 +156,141 @@ function updateEmployeeRole() {
         });
 };
 
-// Quit the application
+// Function to view employees by manager
+function viewEmployeesByManager() {
+    inquirer
+        .prompt([
+            {
+                name: 'managerId',
+                type: 'input',
+                message: 'Enter the ID of the manager whose employees you would like to view:',
+            }
+        ])
+        .then(function (answer) {
+            db.query(
+                'SELECT * FROM employee WHERE manager_id = ?',
+                [
+                    answer.managerId
+                ],
+                function (err, results) {
+                    console.log(results);
+                }
+            );
+        });
+};
+
+// Function to view employees by department
+function viewEmployeesByDepartment() {
+    inquirer
+        .prompt([
+            {
+                name: 'departmentId',
+                type: 'input',
+                message: 'Enter department ID to view employees:',
+            }
+        ])
+        .then(function (answer) {
+            db.query(
+                'SELECT * FROM employee WHERE department_id = ?',
+                [
+                    answer.departmentId
+                ],
+                function (err, results) {
+                    console.log(results);
+                }
+            );
+        });
+};
+
+// Function to delete a department
+function deleteDepartment() {
+    inquirer
+        .prompt([
+            {
+                name: 'departmentId',
+                type: 'input',
+                message: 'Enter the ID of the department you would like to delete:',
+            }
+        ])
+        .then(function (answer) {
+            db.query(
+                'DELETE FROM department WHERE id = ?',
+                [
+                    answer.departmentId
+                ],
+                function (err, results) {
+                    console.log(results);
+                }
+            );
+        });
+};
+
+// Function to delete a role
+function deleteRole() {
+    inquirer
+        .prompt([
+            {
+                name: 'roleId',
+                type: 'input',
+                message: 'Enter the ID of the role you would like to delete:',
+            }
+        ])
+        .then(function (answer) {
+            db.query(
+                'DELETE FROM role WHERE id = ?',
+                [
+                    answer.roleId
+                ],
+                function (err, results) {
+                    console.log(results);
+                }
+            );
+        });
+};
+
+// Function to delete an employee
+function deleteEmployee() {
+    inquirer
+        .prompt([
+            {
+                name: 'employeeId',
+                type: 'input',
+                message: 'Enter the ID of the employee you would like to delete:',
+            }
+        ])
+        .then(function (answer) {
+            db.query(
+                'DELETE FROM employee WHERE id = ?',
+                [
+                    answer.employeeId
+                ],
+                function (err, results) {
+                    console.log(results);
+                }
+            );
+        });
+};
+
+// Function to view the total utilized budget of a department
+function viewDepartmentBudget() {
+    inquirer
+        .prompt([
+            {
+                name: 'departmentId',
+                type: 'input',
+                message: 'Enter the ID of the department to view the budget:'
+            }
+        ])
+        .then(function (answer) {
+            db.query(
+                'SELECT SUM(salary) AS total_budget FROM employee JOIN role ON employee.role_id = role.id WHERE role.department_id = ?',
+                [
+                    answer.departmentId
+                ] ,
+                function (err, results) {
+                    console.log(results);
+                }
+            );
+        });
+};
+
