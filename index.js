@@ -32,11 +32,48 @@ function viewAllRoles() {
 
 // Function to view all employees
 function viewAllEmployees() {
-    db.query('SELECT * FROM employee', function (err, results) {
-        console.log(results);
-        menu();
+    db.query('SELECT * FROM employee', function (err, employees) {
+        if (err) {
+            console.error(err);
+            menu();
+            return;
+        }
+
+        // Fetch additional information about roles
+        db.query('SELECT id, title FROM role', function (err, roles) {
+            if (err) {
+                console.error(err);
+                menu();
+                return;
+            }
+
+            // Fetch additional information about managers
+            db.query('SELECT id, CONCAT(first_name, " ", last_name) AS manager FROM employee WHERE manager_id IS NOT NULL', function (err, managers) {
+                if (err) {
+                    console.error(err);
+                    menu();
+                    return;
+                }
+
+                // Map roles and managers for easy access
+                const rolesMap = new Map(roles.map(role => [role.id, role.title]));
+                const managersMap = new Map(managers.map(manager => [manager.id, manager.manager_name]));
+
+                // Display results with additional info
+                const formattedEmployees = employees.map(employee => ({
+                    id: employee.id,
+                    first_name: employee.first_name,
+                    last_name: employee.last_name,
+                    role: `${employee.role_id}: ${rolesMap.get(employee.role_id)}`,
+                    manager: employee.manager_id ? `${employee.manager_id}: ${managersMap.get(employee.manager_id)}` : null
+                }));
+
+                console.log(formattedEmployees);
+                menu();
+            });
+        });
     });
-};
+}
 
 // Function to add a department
 function addDepartment() {
