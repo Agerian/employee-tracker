@@ -76,7 +76,15 @@ function addDepartment() {
 
 // Function to add a role
 function addRole() {
-    inquirer
+    // Fetch all departments
+    db.query ('SELECT * FROM department ORDER BY id', function (err, departments) {
+        if (err) {
+            console.error(err);
+            menu();
+            return;
+        }
+        
+        inquirer
         .prompt([
             {
                 name: 'title',
@@ -90,8 +98,12 @@ function addRole() {
             },
             {
                 name: 'departmentId',
-                type: 'input',
-                message: 'Enter the department ID for the new role:',
+                type: 'list',
+                message: 'Select the department ID for the new role:',
+                choices: departments.map(department => ({
+                    name: `${department.id}: ${department.name}`,
+                    value: department.id
+                }))
             }
         ])
         .then(function (answer) {
@@ -103,11 +115,16 @@ function addRole() {
                     department_id: answer.departmentId
                 },
                 function (err, results) {
-                    console.log(results);
+                    if (err) {
+                        console.error(err);
+                    } else {
+                        console.log(`Role ${answer.title} added.`);
+                    }
                     menu();
                 }
             );
         });
+    });
 };
 
 // Function to add an employee
