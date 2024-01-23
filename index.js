@@ -108,12 +108,10 @@ function addRole() {
         ])
         .then(function (answer) {
             db.query(
-                'INSERT INTO role SET ?',
-                {
-                    title: answer.title,
-                    salary: answer.salary,
-                    department_id: answer.departmentId
-                },
+                'INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)',
+                [
+                    answer.title, answer.salary, answer.departmentId
+                ],
                 function (err, results) {
                     if (err) {
                         console.error(err);
@@ -129,44 +127,80 @@ function addRole() {
 
 // Function to add an employee
 function addEmployee() {
-    inquirer
-        .prompt([
-            {
-                name: 'firstName',
-                type: 'input',
-                message: 'Enter the first name of the new employee:',
-            },
-            {
-                name: 'lastName',
-                type: 'input',
-                message: 'Enter the last name of the new employee:',
-            },
-            {
-                name: 'roleId',
-                type: 'input',
-                message: 'Enter the role ID for the new employee:',
-            },
-            {
-                name: 'managerId',
-                type: 'input',
-                message: 'Enter the manager ID for the new employee:',
+    // Fetch all employees
+    db.query( 'SELECT employee.*, role.title AS role_title, department.name AS department_name ' +
+    'FROM employee ' +
+    'LEFT JOIN role ON employee.role_id = role.id ' +
+    'LEFT JOIN department ON role.department_id = department.id ' +
+    'WHERE manager_id IS NOT NULL ' +
+    'ORDER BY id', function (err, employees) {
+        if (err) {
+            console.error(err);
+            menu();
+            return;
+        }
+
+        // Fetch all roles
+        db.query('SELECT * FROM role ORDER BY id', function (err, roles) {
+            if (err) {
+                console.error(err);
+                menu();
+                return;
             }
-        ])
-        .then(function (answer) {
-            db.query(
-                'INSERT INTO employee SET ?',
+            inquirer
+            .prompt([
                 {
-                    first_name: answer.firstName,
-                    last_name: answer.lastName, 
-                    role_id: answer.roleId,
-                    manager_id: answer.managerId
+                    name: 'firstName',
+                    type: 'input',
+                    message: 'Enter the first name of the new employee:',
                 },
-                function (err, results) {
-                    console.log(results);
-                    menu();
+                {
+                    name: 'lastName',
+                    type: 'input',
+                    message: 'Enter the last name of the new employee:',
+                },
+                {
+                    name: 'roleId',
+                    type: 'list',
+                    message: 'Selet the role ID for the new employee:',
+                    choices: roles.map(role => ({
+                        name: `${role.id}: ${role.title}`,
+                        value: role.id
+                    }))
+                },
+                {
+                    name: 'managerId',
+                    type: 'list',
+                    message: 'Assign a manager for the new employee:',
+                    choices: employees.map(manager => ({
+                        name: `${manager.id}: ${manager.first_name} ${manager.last_name}`,
+                        value: manager.id
+                    }))
                 }
-            );
-        });
+            ])
+            .then(function (answer) {
+                db.query(
+                    'INSERT INTO employee SET ?',
+                    {
+                        first_name: answer.firstName,
+                        last_name: answer.lastName, 
+                        role_id: answer.roleId,
+                        manager_id: answer.managerId
+                    },
+                    function (err, results) {
+                        if (err) {
+                            console.error(err);
+                        } else {
+                            console.log(`Employee ${answer.firstName} ${answer.lastName} added.`)
+                        }
+                        menu();
+                    }
+                );
+            });
+        }); 
+    })
+
+    
 };
 
 // Function to update an employee role
